@@ -152,36 +152,38 @@ def test_Blk_fake_osmosdr_source():
     tb = gr.top_block()
     osm = Blk_fake_osmosdr_source(2e6, fake_center_freq)
     hea = blocks.head(getSize(np.complex64), numSamples)
-    pri = Blk_sink_print(dtype=np.complex64)
+#    pri = Blk_sink_print(dtype=np.complex64)
+    pri = first_n_match(osm, np.complex64, numSamples, expected_output) #pausing here to set up test environment, next steps are to ensure first_n_match is actually caputring osm then creating something to compare the output to like pcdr.unstable.make_wave
+    
     tb.connect(osm, hea, pri)
-    output = StringIO()
-    with patch("sys.stdout", output):
-        tb.start()
-        tb.wait()
-    outv = output.getvalue()
-    assert len(outv) > 0
-    spl_nolast = outv.split("\n")[:-1]
-    assert len(spl_nolast) == numSamples
-    parsed = np.array(list(map(complex, spl_nolast)))
-    plotOutput = StringIO()
-    x = np.array(range(len(parsed)))
-    y = parsed.real
-    plot(x, y, output_stream=plotOutput)
-    ## TODO: I haven't verified that the wave has the right frequency.
-    assert (
-        plotOutput.getvalue()
-        == """\
-xmin: 0.00
-xmax: 49.00
-ymin: -1.00
-ymax: 1.00
-~o█████████████████████████████████████████████████
-~█oooooooo█████████████████████████████████████████
-~█████████ooo██████████████████████████████████████
-~████████████oooo██████████████████████████████████
-~████████████████ooo██████████████████████████████o
-~███████████████████ooo████████████████████████ooo█
-~██████████████████████oooo████████████████oooo████
-~██████████████████████████oooooooooooooooo████████
-"""
-    )
+#     output = StringIO()
+#     with patch("sys.stdout", output):
+#         tb.start()
+#         tb.wait()
+#     outv = output.getvalue()
+#     assert len(outv) > 0
+#     spl_nolast = outv.split("\n")[:-1]
+#     assert len(spl_nolast) == numSamples
+#     parsed = np.array(list(map(complex, spl_nolast)))
+#     plotOutput = StringIO()
+#     x = np.array(range(len(parsed)))
+#     y = parsed.real
+#     plot(x, y, output_stream=plotOutput)
+#     ## TODO: I haven't verified that the wave has the right frequency.
+#     assert (
+#         plotOutput.getvalue()
+#         == """\
+# xmin: 0.00
+# xmax: 49.00
+# ymin: -1.00
+# ymax: 1.00
+# ~o█████████████████████████████████████████████████
+# ~█oooooooo█████████████████████████████████████████
+# ~█████████ooo██████████████████████████████████████
+# ~████████████oooo██████████████████████████████████
+# ~████████████████ooo██████████████████████████████o
+# ~███████████████████ooo████████████████████████ooo█
+# ~██████████████████████oooo████████████████oooo████
+# ~██████████████████████████oooooooooooooooo████████
+# """
+#     )
